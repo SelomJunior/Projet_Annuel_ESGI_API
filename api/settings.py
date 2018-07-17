@@ -25,7 +25,7 @@ SECRET_KEY = ')@22+5(bfa5kbp&1)goh-qxc4=tbac4lq5a#ke(zu(_*q!o_38'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['wwww.statia-api.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
