@@ -82,9 +82,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'statia',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': '75st4t14',
         'HOST': '127.0.0.1', # Or an IP Address that your DB is hosted on
-        'PORT': '8889',
+        'PORT': '3306',
     },
 }
 

@@ -15,6 +15,8 @@ admin.site.register(Competition)
 admin.site.register(Poste)
 admin.site.register(State)
 admin.site.register(League)
+admin.site.register(StatistiquesMatch)
+admin.site.register(MatchEventPlayer)
 
 
 

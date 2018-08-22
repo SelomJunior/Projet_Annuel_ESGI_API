@@ -14,6 +14,8 @@ router.register(r'matchs',MatchViewSet)
 router.register(r'typeuser', TypeUserViewSet)
 router.register(r'poste', PosteViewSet)
 router.register(r'coachs', CoachViewSet)
+router.register(r'statsmatch', StatistiquesMatchViewSet)
+router.register(r'matcheventplayer', MatchEventPlayerViewSet)
 router.register(r'compositions', CompositionViewSet)
 router.register(r'compositionsdetails', CompositionDetailViewSet)
 
@@ -21,6 +23,7 @@ urlpatterns = [
     url(r'playersbyteam/([0-9]+)$', Playerbyteam.as_view()),
     url(r'teambyClub/([0-9]+)$', TeambyClub.as_view()),
     url(r'login', LoginView.as_view()),
+    url(r'matchtoanalyze', matchToAnalyze.as_view()),
     url(r'matchbyteam/([0-9]+)$', matchByTeam.as_view()),
     url(r'matchbyteamandcompet/([0-9]+)/([0-9]+)$', matchByTeamAndCompetition.as_view()),
     url(r'teambyleague/([0-9]+)$', teamByLeague.as_view()),

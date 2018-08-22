@@ -125,6 +125,33 @@ class PlayerCustomSerializer(serializers.ModelSerializer):
         model = Player
         fields = '__all__'
 
+class StatistiquesMatchSerializer(serializers.ModelSerializer):
+    match = MatchSerializer(many=False)
+    team = TeamSerializer(many=False)
+
+    class Meta:
+        model = StatistiquesMatch
+        fields = '__all__'
+
+class StatistiquesMatchCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StatistiquesMatch
+        fields = '__all__'
+
+class MatchEventPlayerSerializer(serializers.ModelSerializer):
+    statsMatch = StatistiquesMatchSerializer(many=False)
+    player = PlayerSerializer(many=False)
+
+    class Meta:
+        model = MatchEventPlayer
+        fields = '__all__'
+
+class MatchEventPlayerCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MatchEventPlayer
+        fields = '__all__'
+
 
 class CompositionSerializer(serializers.ModelSerializer):
     team = TeamSerializer(many=False)
@@ -135,7 +162,6 @@ class CompositionSerializer(serializers.ModelSerializer):
 
 
 class CompositionCreateSerializer(serializers.ModelSerializer):
-
 
     class Meta:
         model = Composition

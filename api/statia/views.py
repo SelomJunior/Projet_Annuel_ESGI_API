@@ -72,6 +72,25 @@ class CoachViewSet(viewsets.ModelViewSet):
     queryset = Coach.objects.all()
     serializer_class = CoachSerializer
 
+class StatistiquesMatchViewSet(viewsets.ModelViewSet):
+    queryset = StatistiquesMatch.objects.all()
+    serializer_class = StatistiquesMatchSerializer
+
+    def get_serializer_class(self):
+        if self.action == "post" or self.action == "create" or self.action == "update":
+            return StatistiquesMatchCreateSerializer
+        else:
+            return StatistiquesMatchSerializer
+
+class MatchEventPlayerViewSet(viewsets.ModelViewSet):
+    queryset = MatchEventPlayer.objects.all()
+    serializer_class = MatchEventPlayerSerializer
+
+    def get_serializer_class(self):
+        if self.action == "post" or self.action == "create" or self.action == "update":
+            return MatchEventPlayerCreateSerializer
+        else:
+            return MatchEventPlayerSerializer
 
 class CompositionViewSet(viewsets.ModelViewSet):
     queryset = Composition.objects.all()
@@ -202,6 +221,12 @@ class TeambyClub(APIView):
         serializer = TeamSerializer(team, many=True)
         return Response(serializer.data)
 
+
+class matchToAnalyze(APIView):
+    def get(self,request, format=None):
+        match = Match.objects.all().filter(state=0).order_by('date')
+        serializer = MatchSerializer(match, many=True)
+        return Response(serializer.data)
 
 class matchByTeam(APIView):
     def get(self,request, pk, format=None):
