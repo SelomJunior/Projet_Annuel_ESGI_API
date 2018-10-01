@@ -200,7 +200,7 @@ class MatchEventPlayer(models.Model):
     statsMatch = models.ForeignKey(StatistiquesMatch,models.DO_NOTHING, db_column='statsMatch', blank=True, null=True,  related_name='+')
     player =  models.ForeignKey(Player,models.DO_NOTHING, db_column='player', blank=True, null=True,  related_name='+')
     minute = models.IntegerField()
-    event = models.CharField(max_length=30, null=True)
+    event = models.CharField(max_length=50, null=True)
 
     class Meta:
         db_table = 'matcheventplayer'

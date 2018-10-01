@@ -86,6 +86,14 @@ class MatchEventPlayerViewSet(viewsets.ModelViewSet):
     queryset = MatchEventPlayer.objects.all()
     serializer_class = MatchEventPlayerSerializer
 
+    def create(self, request, *args, **kwargs):
+        if type(request.data) is list:
+            for data in request.data:
+                data['player'] = Player(idplayer=data['player'])
+                data['statsMatch'] = StatistiquesMatch(idStatistiquesMatch=data['statsMatch'])
+                event = MatchEventPlayer(**data)
+                event.save()
+            return JsonResponse(status=200, data=True, safe=False)
     def get_serializer_class(self):
         if self.action == "post" or self.action == "create" or self.action == "update":
             return MatchEventPlayerCreateSerializer
