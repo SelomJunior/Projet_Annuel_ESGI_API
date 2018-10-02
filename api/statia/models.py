@@ -136,7 +136,7 @@ class TypeUser(models.Model):
         db_table = 'typeuser'
 
 
-class Profil(models.Model):
+class Analyst(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, models.DO_NOTHING)
     name = models.CharField(max_length=45, blank=True, null=True)
@@ -144,7 +144,7 @@ class Profil(models.Model):
 
 
     class Meta:
-        db_table = 'profil'
+        db_table = 'analyst'
 
 
 class Video(models.Model):

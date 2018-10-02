@@ -47,10 +47,10 @@ class UserSerializer(serializers.ModelSerializer):
 #        fields = '__all__'
 
 
-class ProfilSerializer(serializers.ModelSerializer):
+class AnalystSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Profil
+        model = Analyst
         fields = '__all__'
 
 

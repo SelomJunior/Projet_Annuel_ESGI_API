@@ -47,9 +47,9 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class ProfilViewSet(viewsets.ModelViewSet):
-    queryset = Profil.objects.all()
-    serializer_class = ProfilSerializer
+class AnalystViewSet(viewsets.ModelViewSet):
+    queryset = Analyst.objects.all()
+    serializer_class = AnalystSerializer
 
 
 class MatchViewSet(viewsets.ModelViewSet):
@@ -187,17 +187,41 @@ class LoginView(APIView):
 
     def post(self, request, fortmat=None):
         data = request.data
-        user = SettingsBackend.authenticate(self=self, request=request, username=data['username'], password=data['password'])
+        print(data['username'])
+        try:
+            user = SettingsBackend.authenticate(self=self, request=request, username=data['username'], password=data['password'])
+        except Exception as e:
+            return JsonResponse(status=400, data=False, safe=False)
+        
 
         if user is not None:
-            coach = Coach.objects.all().get(user=user.id)
-            if coach is not None:
-                serializer = CoachSerializer(coach, many=False)
-                return JsonResponse(serializer.data, safe=False)
-            else:
-                return JsonResponse(status=200, data=False, safe=False)
+            try:
+                coach = Coach.objects.all().get(user=user.id)
+                if coach is not None:
+                    serializer = CoachSerializer(coach, many=False)
+                    return JsonResponse(serializer.data, safe=False)
+                else:
+                    return JsonResponse(status=200, data=False, safe=False)
+            except Exception as e:
+                try:
+                    player = Player.objects.all().get(user=user.id)
+                    if player is not None:
+                        serializer = PlayerSerializer(player, many=False)
+                        return JsonResponse(serializer.data, safe=False)
+                    else:
+                        return JsonResponse(status=200, data=False, safe=False)
+                except:
+                    try:
+                        analyst = Analyst.objects.all().get(user=user.id)
+                        if analyst is not None:
+                            serializer = AnalystSerializer(analyst, many=False)
+                            return JsonResponse(serializer.data, safe=False)
+                        else:
+                            return JsonResponse(status=200, data=False, safe=False)
+                    except:
+                        return JsonResponse(status=401, data=False, safe=False)
         else:
-            return JsonResponse(status=200, data=False, safe=False)
+            return JsonResponse(status=402, data=False, safe=False)
 
 
 class Playerbyteam(APIView):
