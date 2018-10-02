@@ -1,6 +1,9 @@
 # appname/serializers.py, this file was created manually
 from rest_framework import serializers
 from .models import *
+from django.http import JsonResponse
+
+
 
 
 class ClubSerializer(serializers.ModelSerializer):
@@ -14,8 +17,6 @@ class LeagueSerializer(serializers.ModelSerializer):
     class Meta:
         model = League
         fields = '__all__'
-
-
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -45,6 +46,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email')
 #        fields = '__all__'
+        extra_kwargs = {
+            'username': {'validators': []},
+        }
 
 
 class ProfilSerializer(serializers.ModelSerializer):
@@ -64,21 +68,63 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 
 class PlayerCreateSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False)
 
     def create(self, validated_data):
-        user = User(last_name=validated_data['lastname'],
-                    first_name=validated_data['firstname'],
-                    email=validated_data['mail'], username=validated_data['mail'])
+        testUser = User.objects.all().filter(username=self.initial_data['mail']).first()
+
+        if testUser is not None:
+            player = Player()
+            player.position = "duplicata"
+            player.user = testUser
+
+            return player
+
+        user = User(last_name=validated_data['user']['last_name'],
+                    first_name=validated_data['user']['first_name'],
+                    email=validated_data['user']['email'], username=validated_data['user']['email'])
 
         player = Player(position=validated_data['position'],
                         foot=validated_data['foot'],
-                        phone=validated_data['phone'], team=validated_data['team'])
+                        phone=validated_data['phone'], team=validated_data['team'],birthdate=validated_data['birthdate'])
+
 
         user.save()
         player.user = user
         player.save()
 
         return player
+
+    def update(self, instance, validated_data):
+        testUser = User.objects.all().filter(username=validated_data['user']['username']).first()
+        if testUser is not None:
+            testUser.first_name = validated_data['user']['first_name']
+            testUser.last_name = validated_data['user']['last_name']
+            testUser.save()
+
+            player = Player.objects.all().filter(user=testUser.id).first()
+            player.birthdate = validated_data['birthdate']
+            player.phone = validated_data['phone']
+            player.position = validated_data['position']
+            player.foot = validated_data['foot']
+            player.save()
+        return player
+
+
+
+
+    class Meta:
+        model = Player
+        fields = '__all__'
+
+
+class PlayerUpdateSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        return validated_data
+
+    def update(self, instance, validated_data):
+        return validated_data
 
     class Meta:
         model = Player
@@ -136,6 +182,16 @@ class CompositionSerializer(serializers.ModelSerializer):
 
 class CompositionCreateSerializer(serializers.ModelSerializer):
 
+    def create(self, validated_data):
+        compo = Composition.objects.all().filter(team=validated_data['team']).filter(name=validated_data['name']).first()
+        if compo is not None:
+            compo.name = ""
+            compo.team = None
+            return compo
+        else:
+            compo = Composition(name=validated_data['name'], team=validated_data['team'])
+            compo.save()
+        return compo
 
     class Meta:
         model = Composition
