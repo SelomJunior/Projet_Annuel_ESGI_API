@@ -51,6 +51,12 @@ class AnalystViewSet(viewsets.ModelViewSet):
     queryset = Analyst.objects.all()
     serializer_class = AnalystSerializer
 
+    def get_serializer_class(self):
+        if self.action == "post" or self.action == "create" or self.action == "update":
+            return AnalystCreateSerializer
+        else:
+            return AnalystSerializer
+
 
 class MatchViewSet(viewsets.ModelViewSet):
     queryset = Match.objects.all()
@@ -188,33 +194,36 @@ class LoginView(APIView):
     def post(self, request, fortmat=None):
         data = request.data
         print(data['username'])
+        print(data['password'])
         try:
             user = SettingsBackend.authenticate(self=self, request=request, username=data['username'], password=data['password'])
         except Exception as e:
             return JsonResponse(status=400, data=False, safe=False)
         
-
+        print(user.id)
         if user is not None:
             try:
-                coach = Coach.objects.all().get(user=user.id)
-                if coach is not None:
-                    serializer = CoachSerializer(coach, many=False)
+                analyst = Analyst.objects.all().get(user=user.id)
+                if analyst is not None:
+                    print("here ?")
+                    serializer = AnalystSerializer(analyst, many=False)
                     return JsonResponse(serializer.data, safe=False)
                 else:
                     return JsonResponse(status=200, data=False, safe=False)
-            except Exception as e:
+            except:
                 try:
-                    player = Player.objects.all().get(user=user.id)
-                    if player is not None:
-                        serializer = PlayerSerializer(player, many=False)
+                    coach = Coach.objects.all().get(user=user.id)
+                    if coach is not None:
+                        print("here 2 ?")
+                        serializer = CoachSerializer(coach, many=False)
                         return JsonResponse(serializer.data, safe=False)
                     else:
                         return JsonResponse(status=200, data=False, safe=False)
                 except:
                     try:
-                        analyst = Analyst.objects.all().get(user=user.id)
-                        if analyst is not None:
-                            serializer = AnalystSerializer(analyst, many=False)
+                        player = Player.objects.all().get(user=user.id)
+                        if player is not None:
+                            serializer = PlayerSerializer(player, many=False)
                             return JsonResponse(serializer.data, safe=False)
                         else:
                             return JsonResponse(status=200, data=False, safe=False)

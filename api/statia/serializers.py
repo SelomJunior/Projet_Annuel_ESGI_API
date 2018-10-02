@@ -48,7 +48,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class AnalystSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Analyst
+        fields = '__all__'
 
+class AnalystCreateSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False, read_only=True)
     class Meta:
         model = Analyst
         fields = '__all__'
@@ -128,6 +134,7 @@ class PlayerCustomSerializer(serializers.ModelSerializer):
 class StatistiquesMatchSerializer(serializers.ModelSerializer):
     match = MatchSerializer(many=False)
     team = TeamSerializer(many=False)
+    analyst = AnalystSerializer(many=False)
 
     class Meta:
         model = StatistiquesMatch

@@ -137,7 +137,7 @@ class TypeUser(models.Model):
 
 
 class Analyst(models.Model):
-    id = models.AutoField(primary_key=True)
+    idanalyst = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, models.DO_NOTHING)
     name = models.CharField(max_length=45, blank=True, null=True)
     firstname = models.CharField(max_length=45, blank=True, null=True)
@@ -173,6 +173,7 @@ class StatistiquesMatch(models.Model):
     idStatistiquesMatch = models.AutoField(primary_key=True)
     match = models.ForeignKey(Match,models.DO_NOTHING, db_column='match', blank=True, null=True, related_name='+')
     team = models.ForeignKey(Team,models.DO_NOTHING, db_column='team', blank=True, null=True, related_name='+')
+    analyst = models.ForeignKey(Analyst,models.DO_NOTHING, db_column='analyst', blank=True, null=True, related_name='+')
     possession = models.DecimalField(max_digits=5, decimal_places=2)
     passe_reussie = models.IntegerField()
     passe_ratee = models.IntegerField()
