@@ -7,6 +7,7 @@ from django.dispatch import receiver
 # Create your models here.
 
 
+
 class Club(models.Model):
     idclub = models.AutoField(primary_key=True)
     name = models.CharField(max_length=45, blank=True, null=True)
@@ -56,6 +57,12 @@ class League(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=75)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'statia_league'
+
 
 class Poste(models.Model):
     id = models.AutoField(primary_key=True)
@@ -71,14 +78,11 @@ class Poste(models.Model):
 
 class Player(models.Model):
     idplayer = models.AutoField(primary_key=True)
-    firstname = models.CharField(max_length=45, blank=True, null=True)
-    lastname = models.CharField(max_length=45, blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
     picture = models.TextField(blank=True, null=True)
     position = models.CharField(max_length=45, blank=True, null=True)
     foot = models.CharField(max_length=45, blank=True, null=True)
     phone = models.CharField(max_length=45, blank=True, null=True)
-    mail = models.CharField(max_length=45, blank=True, null=True)
     address = models.CharField(max_length=45, blank=True, null=True)
     postal_code = models.CharField(max_length=45, blank=True, null=True)
     city = models.CharField(max_length=45, blank=True, null=True)
@@ -86,7 +90,9 @@ class Player(models.Model):
     incharge_phone = models.CharField(max_length=45, blank=True, null=True)
     incharge_mail = models.CharField(max_length=45, blank=True, null=True)
     team = models.ForeignKey('Team', models.DO_NOTHING, db_column='team', blank=True, null=True, related_name='+')
-    user = models.OneToOneField(User, models.DO_NOTHING, db_column='user', blank=True, null=True, related_name='+')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user', blank=True, null=True, related_name='+')
+    name = ""
+    firstname = ""
 
     def __str__(self):
         return '%s %s' % (self.user.first_name, self.user.last_name)
@@ -235,7 +241,7 @@ class Composition(models.Model):
 
 class CompositionDetail(models.Model):
     id = models.AutoField(primary_key=True)
-    player = models.ForeignKey(Player, models.DO_NOTHING, db_column='player', blank=True, null=True, related_name='+')
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, db_column='player', blank=True, null=True, related_name='+')
     button = models.IntegerField(blank=True)
     x = models.FloatField()
     y = models.FloatField()

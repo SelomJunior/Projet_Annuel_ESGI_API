@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'teambyleague/([0-9]+)$', teamByLeague.as_view()),
     url(r'getcompobyteam/([0-9]+)$', getCompoByTeam.as_view()),
     url(r'getcomposdetails/([0-9]+)$', getCompoDetailByCompo.as_view()),
+    url(r'getcompodefault', getComposByDefaut.as_view())
 ]
 
 urlpatterns += router.urls

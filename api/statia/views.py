@@ -11,14 +11,20 @@ from django.contrib.auth.hashers import check_password
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from django.contrib.auth.models import User
 from django.db.models import Q
+import pdb
+import json
 
 
 class ClubViewSet(viewsets.ModelViewSet):
     queryset = Club.objects.all()
     serializer_class = ClubSerializer
 
+    def get_queryset(self):
+        return
+
 
 class TeamViewSet(viewsets.ModelViewSet):
+
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
 
@@ -123,6 +129,32 @@ class CompositionDetailViewSet(viewsets.ModelViewSet):
     serializer_class = CompositionDetailSerializer
 
     def create(self, request, *args, **kwargs):
+        if type(request.data) is list :
+            for data in request.data:
+                data['player'] = None
+                if data['poste'] != "":
+                    data["poste"] = Poste.objects.all().filter(id=data["poste"]).first()
+                else:
+                    data["poste"] = None
+
+                data['composition'] = Composition(id=data['composition'])
+                compo = CompositionDetail(**data)
+                compo.save()
+            return JsonResponse(status=200, data=True,
+                                    safe=False)
+        if request.data["button"] == '-1' :
+            compo = Composition.objects.all().filter(id=request.data["composition"]).first()
+            compoR = CompositionDetail(x=request.data["x"], y=request.data["y"],composition=compo,
+                                       button=request.data["button"], is_sub=request.data["is_sub"])
+
+            player = Player.objects.all().filter(idplayer=request.data["player"]).first()
+            compoR.player = player
+
+            poste = Poste.objects.all().filter(id=request.data["poste"]).first()
+            compoR.poste = poste
+            compoR.save()
+            return JsonResponse(status=200, data=CompositionDetailSerializer(compoR, many=False).data, safe=False)
+
         compodetail = CompositionDetail.objects.all().filter(composition=request.data["composition"]).filter(button=request.data["button"]).first()
         playertoadd = Player()
         if compodetail:
@@ -293,6 +325,14 @@ class teamByLeague(APIView):
 class getCompoByTeam(APIView):
     def get(self, request, idTeam, Format=None):
         compo = Composition.objects.all().filter(team=idTeam)
+        serializers = CompositionSerializer(compo, many=True)
+        return Response(serializers.data)
+
+
+class getComposByDefaut(APIView):
+    def get(self, request, Format=None):
+        team = Team.objects.all().filter(name="0").first()
+        compo = Composition.objects.all().filter(team=team)
         serializers = CompositionSerializer(compo, many=True)
         return Response(serializers.data)
 
