@@ -45,13 +45,16 @@ class Match(models.Model):
     day = models.CharField(max_length=45, blank=True, null=True)
     home = models.ForeignKey('Team', models.DO_NOTHING, db_column='home', blank=True, null=True, related_name='+')
     away = models.ForeignKey('Team', models.DO_NOTHING, db_column='away', blank=True, null=True, related_name='+')
-    home_goal = models.IntegerField(null=True)
-    away_goal = models.IntegerField(null=True)
-    state = models.IntegerField(null=True)
+    home_goal = models.IntegerField(null=True, default=0)
+    away_goal = models.IntegerField(null=True, default=0)
+    state = models.IntegerField(null=True, default=0)
+
 
     class Meta:
         db_table = 'match'
 
+    def __str__(self):
+        return '%s - %s' %(self.home, self.away)
 
 class League(models.Model):
     id = models.AutoField(primary_key=True)
@@ -124,7 +127,7 @@ class StatsPlayerMatch(models.Model):
 class Team(models.Model):
     idteam = models.AutoField(primary_key=True)
     name = models.CharField(max_length=45, blank=True, null=True)
-    league = models.ForeignKey('League', models.DO_NOTHING, db_column='match', blank=True, null=True, related_name='+')
+    league = models.ForeignKey('League', models.DO_NOTHING, db_column='ligue', blank=True, null=True, related_name='+')
     club = models.ForeignKey(Club,models.DO_NOTHING,db_column='club',blank=True,null=True,related_name='+')
 
     def __str__(self):
@@ -142,7 +145,7 @@ class TypeUser(models.Model):
         db_table = 'typeuser'
 
 
-class Profil(models.Model):
+class Analyst(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, models.DO_NOTHING)
     name = models.CharField(max_length=45, blank=True, null=True)
@@ -150,7 +153,7 @@ class Profil(models.Model):
 
 
     class Meta:
-        db_table = 'profil'
+        db_table = 'analyst'
 
 
 class Video(models.Model):
@@ -174,30 +177,42 @@ class Competition(models.Model):
         db_table = 'competition'
 
 
+
 class StatistiquesMatch(models.Model):
     idStatistiquesMatch = models.AutoField(primary_key=True)
     match = models.ForeignKey(Match,models.DO_NOTHING, db_column='match', blank=True, null=True, related_name='+')
     team = models.ForeignKey(Team,models.DO_NOTHING, db_column='team', blank=True, null=True, related_name='+')
     possession = models.DecimalField(max_digits=5, decimal_places=2)
-    fautes_subie = models.IntegerField()
-    penaltys_obtenue = models.IntegerField()
-    corners_obtenue = models.IntegerField()
-    ballons_concedes = models.IntegerField()
-    hors_jeux = models.IntegerField()
-    nombre_tirs = models.IntegerField()
-    tirs_cadres = models.IntegerField()
-    tirs_contres = models.IntegerField()
-    buts_inscrits = models.IntegerField()
-    buts_jeux = models.IntegerField()
-    buts_penalty = models.IntegerField()
-    buts_arretes = models.IntegerField()
-    passes_tente = models.IntegerField()
-    passe_reussis = models.IntegerField()
-    centre_tente = models.IntegerField()
-    centre_reussis = models.IntegerField()
+    passe_reussie = models.IntegerField()
+    passe_ratee = models.IntegerField()
+    duel_gagne = models.IntegerField()
+    duel_perdu = models.IntegerField()
+    centre_reussi = models.IntegerField()
+    centre_rate = models.IntegerField()
+    tir_cadre = models.IntegerField()
+    tir_hors_cadre = models.IntegerField()
+    tir_contre = models.IntegerField()
+    corner_obtenu = models.IntegerField()
+    ballon_concede = models.IntegerField()
+    hors_jeu = models.IntegerField()
+    interception = models.IntegerField()
+    faute_commise = models.IntegerField()
+    penalty_commis = models.IntegerField()
+    degagement = models.IntegerField()
 
     class Meta:
-        db_table = 'stats_match'
+        db_table = 'statsmatch'
+
+
+class MatchEventPlayer(models.Model):
+    idMatchEvent = models.AutoField(primary_key=True)
+    statsMatch = models.ForeignKey(StatistiquesMatch,models.DO_NOTHING, db_column='statsMatch', blank=True, null=True,  related_name='+')
+    player =  models.ForeignKey(Player,models.DO_NOTHING, db_column='player', blank=True, null=True,  related_name='+')
+    minute = models.IntegerField()
+    event = models.CharField(max_length=50, null=True)
+
+    class Meta:
+        db_table = 'matcheventplayer'
 
 
 class StatistiquesPlayer(models.Model):
@@ -238,3 +253,42 @@ class CompositionDetail(models.Model):
     class Meta:
         db_table = 'composition_details'
 
+
+class CategorieStats(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30)
+
+    class Meta:
+        db_table = 'categorie_stats'
+
+    def __str__(self):
+        return self.name
+
+
+class StatistiqueInfo(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
+    categorie = models.ForeignKey(CategorieStats, on_delete=models.CASCADE, db_column='categorie', blank=True,
+                                  null=True, related_name='+')
+
+    class Meta:
+        db_table = 'stats_info'
+
+    def __str__(self):
+        return self.name
+
+
+class StatistiquesMatchInfo(models.Model):
+    id = models.AutoField(primary_key=True)
+    stats_info = models.ForeignKey(StatistiqueInfo, on_delete=models.CASCADE, db_column='stats_info', blank=True,
+                                  null=True, related_name='+')
+    statistiques_match = models.ForeignKey(StatistiquesMatch, on_delete=models.CASCADE, db_column='statistiques_match', blank=True,
+                                   null=True, related_name='+')
+    value = models.FloatField()
+
+
+    class Meta:
+        db_table = 'statistiques_match_info'
+
+    def __str__(self):
+        return '%s %s' % (self.stats_info, self.value)

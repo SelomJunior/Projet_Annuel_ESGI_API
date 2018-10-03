@@ -53,9 +53,9 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class ProfilViewSet(viewsets.ModelViewSet):
-    queryset = Profil.objects.all()
-    serializer_class = ProfilSerializer
+class AnalystViewSet(viewsets.ModelViewSet):
+    queryset = Analyst.objects.all()
+    serializer_class = AnalystSerializer
 
 
 class MatchViewSet(viewsets.ModelViewSet):
@@ -78,6 +78,33 @@ class CoachViewSet(viewsets.ModelViewSet):
     queryset = Coach.objects.all()
     serializer_class = CoachSerializer
 
+class StatistiquesMatchViewSet(viewsets.ModelViewSet):
+    queryset = StatistiquesMatch.objects.all()
+    serializer_class = StatistiquesMatchSerializer
+
+    def get_serializer_class(self):
+        if self.action == "post" or self.action == "create" or self.action == "update":
+            return StatistiquesMatchCreateSerializer
+        else:
+            return StatistiquesMatchSerializer
+
+class MatchEventPlayerViewSet(viewsets.ModelViewSet):
+    queryset = MatchEventPlayer.objects.all()
+    serializer_class = MatchEventPlayerSerializer
+
+    def create(self, request, *args, **kwargs):
+        if type(request.data) is list:
+            for data in request.data:
+                data['player'] = Player(idplayer=data['player'])
+                data['statsMatch'] = StatistiquesMatch(idStatistiquesMatch=data['statsMatch'])
+                event = MatchEventPlayer(**data)
+                event.save()
+            return JsonResponse(status=200, data=True, safe=False)
+    def get_serializer_class(self):
+        if self.action == "post" or self.action == "create" or self.action == "update":
+            return MatchEventPlayerCreateSerializer
+        else:
+            return MatchEventPlayerSerializer
 
 class CompositionViewSet(viewsets.ModelViewSet):
     queryset = Composition.objects.all()
@@ -89,6 +116,17 @@ class CompositionViewSet(viewsets.ModelViewSet):
             return CompositionCreateSerializer
         else:
             return CompositionSerializer
+
+
+class CategorieStatsViewSet(viewsets.ModelViewSet):
+    queryset = CategorieStats.objects.all()
+    serializer_class = CategorieStatSerializer
+
+
+class StatistiqueInfoViewSet(viewsets.ModelViewSet):
+
+    queryset = StatistiqueInfo.objects.all()
+    serializer_class = StatistiqueInfoSerializer
 
 
 class CompositionDetailViewSet(viewsets.ModelViewSet):
@@ -199,14 +237,33 @@ class LoginView(APIView):
             return JsonResponse(status=200, data=False, safe=False)
 
         if user is not None:
-            coach = Coach.objects.all().get(user=user.id)
-            if coach is not None:
-                serializer = CoachSerializer(coach, many=False)
-                return JsonResponse(serializer.data, safe=False)
-            else:
-                return JsonResponse(status=200, data=False, safe=False)
+            try:
+                coach = Coach.objects.all().get(user=user.id)
+                if coach is not None:
+                    serializer = CoachSerializer(coach, many=False)
+                    return JsonResponse(serializer.data, safe=False)
+                else:
+                    return JsonResponse(status=200, data=False, safe=False)
+            except Exception as e:
+                try:
+                    player = Player.objects.all().get(user=user.id)
+                    if player is not None:
+                        serializer = PlayerSerializer(player, many=False)
+                        return JsonResponse(serializer.data, safe=False)
+                    else:
+                        return JsonResponse(status=200, data=False, safe=False)
+                except:
+                    try:
+                        analyst = Analyst.objects.all().get(user=user.id)
+                        if analyst is not None:
+                            serializer = AnalystSerializer(analyst, many=False)
+                            return JsonResponse(serializer.data, safe=False)
+                        else:
+                            return JsonResponse(status=200, data=False, safe=False)
+                    except:
+                        return JsonResponse(status=401, data=False, safe=False)
         else:
-            return JsonResponse(status=200, data=False, safe=False)
+            return JsonResponse(status=402, data=False, safe=False)
 
 
 class Playerbyteam(APIView):
@@ -238,6 +295,12 @@ class TeambyClub(APIView):
         serializer = TeamSerializer(team, many=True)
         return Response(serializer.data)
 
+
+class matchToAnalyze(APIView):
+    def get(self,request, format=None):
+        match = Match.objects.all().filter(state=0).order_by('date')
+        serializer = MatchSerializer(match, many=True)
+        return Response(serializer.data)
 
 class matchByTeam(APIView):
     def get(self,request, pk, format=None):
@@ -279,4 +342,126 @@ class getCompoDetailByCompo(APIView):
     def get(self, request, idCompo, Format=None):
         compodetail = CompositionDetail.objects.all().filter(composition=idCompo)
         serializers = CompositionDetailSerializer(compodetail, many=True)
+        return Response(serializers.data)
+
+
+class getStatsMatchByMatch(APIView):
+    def get(self,request, idMatch, Format=None):
+        statsMatch = StatistiquesMatch.objects.all().filter(match=idMatch)
+        serializers = StatistiquesMatchSerializer(statsMatch, many=True)
+        return Response(serializers.data)
+
+
+class getStatsMatchInfoByMatch(APIView):
+    def get(self,request, idMatch, idTeam, Format=None):
+        statsMatch = StatistiquesMatch.objects.all().filter(match=idMatch).filter(team=idTeam).first()
+
+        if statsMatch:
+            array_object = []
+            statsInfo = StatistiqueInfo.objects.all().filter(id=1).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch, value=statsMatch.possession)
+            #statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=15).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.passe_reussie)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=16).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                value=statsMatch.passe_ratee)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=13).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.duel_gagne)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=14).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.duel_perdu)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=17).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.centre_reussi)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=18).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.centre_rate)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=7).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.tir_cadre)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=8).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.tir_hors_cadre)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=9).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.tir_contre)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=4).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.corner_obtenu)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=5).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.ballon_concede)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=6).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.hors_jeu)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=21).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.interception)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=24).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.faute_commise)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=25).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.penalty_commis)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+            statsInfo = StatistiqueInfo.objects.all().filter(id=22).first()
+            statsMatchInfo = StatistiquesMatchInfo(stats_info=statsInfo, statistiques_match=statsMatch,
+                                                   value=statsMatch.degagement)
+            # statsMatchInfo.save()
+            array_object.append(statsMatchInfo)
+
+        #statsMatchV2 = list(statsMatch)
+        #print(statsMatchV2[0])
+        #statsInfo = StatistiquesMatch.objects.all().filter(stats_match=statsMatch.idStatistiquesMatch).order_by('stats_info__categorie__id').order_by('stats_info__id')
+
+        serializers = StatsMatchInfoSerializerGet(array_object, many=True)
         return Response(serializers.data)
