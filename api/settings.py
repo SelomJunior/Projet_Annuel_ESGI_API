@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '9n#b0g@_ykfk&hf7wug=tmci)wpj&(y#h!1n&o=ljg1m@2@*$+'
+SECRET_KEY = ')@22+5(bfa5kbp&1)goh-qxc4=tbac4lq5a#ke(zu(_*q!o_38'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'statia',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1', # Or an IP Address that your DB is hosted on
-        'PORT': '8889',
+        'NAME': 'STATIA_DEV',
+        'USER': 'statia_app',
+        'PASSWORD': 'Statia2018',
+        'HOST': 'ms847662-001.dbaas.ovh.net', # Or an IP Address that your DB is hosted on
+        'PORT': '35367',
     },
 }
 
