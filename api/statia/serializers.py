@@ -51,12 +51,6 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
 
-class ProfilSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Profil
-        fields = '__all__'
-
 
 class PlayerSerializer(serializers.ModelSerializer):
     team = TeamSerializer(many=False)
@@ -212,4 +206,79 @@ class CompositinoDetailSerializerCreate(serializers.ModelSerializer):
 
     class Meta:
         model = CompositionDetail
+        fields = '__all__'
+
+
+class AnalystSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Analyst
+        fields = '__all__'
+
+
+class AnalystCreateSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Analyst
+        fields = '__all__'
+
+class StatistiquesMatchSerializer(serializers.ModelSerializer):
+    match = MatchSerializer(many=False)
+    team = TeamSerializer(many=False)
+    #analyst = AnalystSerializer(many=False)
+
+    class Meta:
+        model = StatistiquesMatch
+        fields = '__all__'
+
+class StatistiquesMatchCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = StatistiquesMatch
+        fields = '__all__'
+
+
+
+class MatchEventPlayerSerializer(serializers.ModelSerializer):
+    statsMatch = StatistiquesMatchSerializer(many=False)
+    player = PlayerSerializer(many=False)
+
+    class Meta:
+        model = MatchEventPlayer
+        fields = '__all__'
+
+class MatchEventPlayerCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MatchEventPlayer
+        fields = '__all__'
+
+
+
+class StatsMatchInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StatistiquesMatchInfo
+        fields = '__all__'
+
+
+
+class CategorieStatSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CategorieStats
+        fields = '__all__'
+
+
+class StatistiqueInfoSerializer(serializers.ModelSerializer):
+    categorie = CategorieStatSerializer(many=False)
+    class Meta:
+        model = StatistiqueInfo
+        fields = '__all__'
+
+
+class StatsMatchInfoSerializerGet(serializers.ModelSerializer):
+    stats_match = StatistiquesMatchSerializer(many=False)
+    stats_info = StatistiqueInfoSerializer(many=False)
+
+    class Meta:
+        model = StatistiquesMatchInfo
         fields = '__all__'

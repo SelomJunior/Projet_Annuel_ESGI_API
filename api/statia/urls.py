@@ -8,7 +8,7 @@ router = routers.DefaultRouter()
 router.register(r'clubs', ClubViewSet)
 router.register(r'teams', TeamViewSet)
 router.register(r'players', PlayerViewSet)
-router.register(r'profils', ProfilViewSet)
+#router.register(r'profils', ProfilViewSet)
 router.register(r'users',UserViewSet)
 router.register(r'matchs',MatchViewSet)
 router.register(r'typeuser', TypeUserViewSet)
@@ -16,6 +16,8 @@ router.register(r'poste', PosteViewSet)
 router.register(r'coachs', CoachViewSet)
 router.register(r'compositions', CompositionViewSet)
 router.register(r'compositionsdetails', CompositionDetailViewSet)
+router.register(r'statsmatch', StatistiquesMatchViewSet)
+router.register(r'matcheventplayer', MatchEventPlayerViewSet)
 
 urlpatterns = [
     url(r'playersbyteam/([0-9]+)$', Playerbyteam.as_view()),
