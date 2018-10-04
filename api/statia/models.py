@@ -45,10 +45,9 @@ class Match(models.Model):
     day = models.CharField(max_length=45, blank=True, null=True)
     home = models.ForeignKey('Team', models.DO_NOTHING, db_column='home', blank=True, null=True, related_name='+')
     away = models.ForeignKey('Team', models.DO_NOTHING, db_column='away', blank=True, null=True, related_name='+')
-    home_goal = models.IntegerField(null=True, default=0)
-    away_goal = models.IntegerField(null=True, default=0)
+    home_goal = models.IntegerField(null=True, default=None)
+    away_goal = models.IntegerField(null=True, default=None)
     state = models.IntegerField(null=True, default=0)
-
 
     class Meta:
         db_table = 'match'
@@ -250,8 +249,31 @@ class CompositionDetail(models.Model):
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE, db_column='composition', blank=True, null=True, related_name='+')
     poste = models.ForeignKey(Poste, on_delete=models.DO_NOTHING, db_column='poste', blank=True, null=True, related_name='+')
     is_sub = models.IntegerField(blank=True, default=0)
+
     class Meta:
         db_table = 'composition_details'
+
+
+class CompositionHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    team = models.ForeignKey(Team, models.DO_NOTHING, db_column='team', blank=True, null=True, related_name='+')
+    name = models.CharField(max_length=20, null=True)
+    match = models.ForeignKey(Match, models.DO_NOTHING, db_column='match', blank=True, null=True, related_name='+')
+
+    class Meta:
+        db_table = 'composition_history'
+
+
+class CompositionDetailHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, db_column='player', blank=True, null=True, related_name='+')
+    composition = models.ForeignKey(Composition, on_delete=models.CASCADE, db_column='composition', blank=True, null=True, related_name='+')
+    poste = models.ForeignKey(Poste, on_delete=models.DO_NOTHING, db_column='poste', blank=True, null=True, related_name='+')
+    is_sub = models.IntegerField(blank=True, default=0)
+
+    class Meta:
+        db_table = 'composition_details_history'
+
 
 
 class CategorieStats(models.Model):

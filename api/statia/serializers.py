@@ -231,12 +231,12 @@ class StatistiquesMatchSerializer(serializers.ModelSerializer):
         model = StatistiquesMatch
         fields = '__all__'
 
+
 class StatistiquesMatchCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StatistiquesMatch
         fields = '__all__'
-
 
 
 class MatchEventPlayerSerializer(serializers.ModelSerializer):
@@ -276,9 +276,25 @@ class StatistiqueInfoSerializer(serializers.ModelSerializer):
 
 
 class StatsMatchInfoSerializerGet(serializers.ModelSerializer):
-    stats_match = StatistiquesMatchSerializer(many=False)
+    statistiques_match = StatistiquesMatchSerializer(many=False)
     stats_info = StatistiqueInfoSerializer(many=False)
 
     class Meta:
         model = StatistiquesMatchInfo
+        fields = '__all__'
+
+
+class CompositionHistorySerializer(serializers.ModelSerializer):
+    team = TeamSerializer(many=False)
+    match = MatchSerializer(many=False)
+
+    class Meta:
+        model = CompositionHistory
+        fields = '__all__'
+
+
+class CompositionHistoryCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CompositionHistory
         fields = '__all__'

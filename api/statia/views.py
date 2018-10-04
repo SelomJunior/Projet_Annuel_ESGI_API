@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 import pdb
 import json
-
+import datetime
 
 class ClubViewSet(viewsets.ModelViewSet):
     queryset = Club.objects.all()
@@ -204,6 +204,22 @@ class CompositionDetailViewSet(viewsets.ModelViewSet):
             return CompositionDetailSerializer
 
 
+class CompositionHistoryViewSet(viewsets.ModelViewSet):
+    queryset = CompositionHistory.objects.all()
+    serializer_class = CompositionHistorySerializer
+
+
+    def get_serializer_class(self):
+        if self.action == "post" or self.action == "create" or self.action == "update":
+            return CompositionHistoryCreateSerializer
+        else:
+            return CompositionHistorySerializer
+
+    def create(self, request, *args, **kwargs):
+        composH = CompositionHistory(match=request.data['match'],)
+        return JsonResponse(status=200, data=False, safe=False)
+
+
 class SettingsBackend:
 
     def authenticate(self, request, username=None, password=None):
@@ -305,7 +321,8 @@ class matchToAnalyze(APIView):
 class matchByTeam(APIView):
     def get(self,request, pk, format=None):
         match = Match.objects.all().filter(Q(home=pk) | Q(away=pk)).order_by('date')
-        serializer = MatchSerializer(match, many=True)
+        matchV2 = Match.objects.all().filter(date__gte=datetime.date.today()).order_by('date')
+        serializer = MatchSerializer(matchV2, many=True)
         return Response(serializer.data)
 
 
@@ -465,3 +482,16 @@ class getStatsMatchInfoByMatch(APIView):
 
         serializers = StatsMatchInfoSerializerGet(array_object, many=True)
         return Response(serializers.data)
+
+
+
+
+class getCompoForMatch(APIView):
+    def get(self, request, idMatch, idTeam, Format=None):
+        return JsonResponse(status=200, data=True, safe=False)
+
+
+
+class postCompoForMatch(APIView):
+    def post(self, request, fortmat=None):
+        return JsonResponse(status=200, data=True, safe=False)
