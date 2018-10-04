@@ -282,3 +282,9 @@ class StatsMatchInfoSerializerGet(serializers.ModelSerializer):
     class Meta:
         model = StatistiquesMatchInfo
         fields = '__all__'
+
+class StatistiquesPlayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StatistiquesPlayer
+        fields = '__all__'
+        

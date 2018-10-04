@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'STATIA_DEV',
-        'USER': 'statia_app',
-        'PASSWORD': 'Statia2018',
-        'HOST': 'ms847662-001.dbaas.ovh.net', # Or an IP Address that your DB is hosted on
-        'PORT': '35367',
+        'NAME': 'statia_s',
+        'USER': 'root',
+        'PASSWORD': '75st4t14',
+        'HOST': '127.0.0.1', # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
     },
 }
 

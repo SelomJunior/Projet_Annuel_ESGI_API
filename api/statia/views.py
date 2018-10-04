@@ -128,6 +128,10 @@ class StatistiqueInfoViewSet(viewsets.ModelViewSet):
     queryset = StatistiqueInfo.objects.all()
     serializer_class = StatistiqueInfoSerializer
 
+class StatistiquesInfoPlayerViewSet(viewsets.ModelViewSet):
+    queryset = StatistiquesPlayer.objects.all()
+    serializer_class = StatistiquesPlayerSerializer
+
 
 class CompositionDetailViewSet(viewsets.ModelViewSet):
     queryset = CompositionDetail.objects.all()
@@ -465,3 +469,75 @@ class getStatsMatchInfoByMatch(APIView):
 
         serializers = StatsMatchInfoSerializerGet(array_object, many=True)
         return Response(serializers.data)
+
+
+class getStatsInfoByPlayer(APIView):
+    def get(self,request, idPlayer, Format=None):
+        player = Player.objects.all().filter(idplayer=idPlayer).first()
+
+        if player:
+            playerInfo = StatistiquesPlayer()
+            # playerInfo.nbMatchPlayer += 1
+            # FILTER WITH COMPOS
+            matchParticipated = StatistiquesMatch.objects.all().filter(team=player.team)
+            for match in matchParticipated:
+                playerInfo.nbMatchPlayer += 1
+                playerInfo.nbMatchTeam += 1
+                if match.match.home == player.team:
+                    playerInfo.nbGoalTeam += match.match.home_goal
+                    if match.match.away_goal == 0:
+                        playerInfo.nbCleanSheet += 1
+                    else:
+                        playerInfo.nbGoalAgainst += match.match.away_goal
+                else:
+                    playerInfo.nbGoalTeam += match.match.away_goal
+                    if match.match.home_goal == 0:
+                        playerInfo.nbCleanSheet += 1
+                    else:
+                        playerInfo.nbGoalAgainst += match.match.home_goal
+                
+                eventsGoal = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(player=player.idplayer).filter(Q(event="But dans le jeu") | Q(event="But sur CPA") | Q(event="But sur penalty"))
+                if eventsGoal:
+                    playerInfo.nbGoalPlayer += len(eventsGoal)
+                
+                eventsYCardPlayer = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(player=player.idplayer).filter(event="Carton jaune")
+                if eventsYCardPlayer:
+                    playerInfo.nbYellowCardPlayer += len(eventsYCardPlayer)
+
+                eventsRCardPlayer = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(player=player.idplayer).filter(event="Carton rouge")
+                if eventsRCardPlayer:
+                    playerInfo.nbRedCardPlayer += len(eventsRCardPlayer)
+                
+                eventsYCardTeam = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(Q(event="Carton jaune"))
+                if eventsYCardTeam:
+                    playerInfo.nbYellowCardTeam += len(eventsYCardTeam)
+
+                eventsRCardTeam = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(Q(event="Carton rouge"))
+                if eventsRCardTeam:
+                    playerInfo.nbRedCardTeam += len(eventsRCardTeam)
+
+                if player.position == "Gardien":
+                    print("HERE 1")
+                    events = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(player=player.idplayer)
+                    for event in events:
+                        if event.event == "Ballon capté":
+                            playerInfo.nbCapt += 1
+                        elif event.event == "Ballon repoussé":
+                            playerInfo.nbPush += 1
+                        elif event.event == "Interception aérienne":
+                            playerInfo.nbAir += 1
+                        elif event.event == "Interception dans les pieds":
+                            playerInfo.nbFoot += 1
+                        elif event.event == "Interception aérienne ratée":
+                            playerInfo.nbAirFail += 1
+                        elif event.event == "Interception dans les pieds ratée":
+                            playerInfo.nbFootFail += 1
+        
+                    opponent = StatistiquesMatch.objects.all().filter(match=match.match).filter(~Q(team=player.team)).first()
+                    if opponent:
+                        playerInfo.nbShotIn += opponent.tir_cadre
+                        playerInfo.nbShotOut += opponent.tir_hors_cadre
+                    
+            serializers = StatistiquesPlayerSerializer(playerInfo, many=False)
+            return Response(serializers.data)
+

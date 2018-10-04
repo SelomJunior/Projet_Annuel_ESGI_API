@@ -54,7 +54,7 @@ class Match(models.Model):
         db_table = 'match'
 
     def __str__(self):
-        return '%s - %s' %(self.home, self.away)
+        return '%s: %s - %s' %(self.idmatch, self.home, self.away)
 
 class League(models.Model):
     id = models.AutoField(primary_key=True)
@@ -217,19 +217,43 @@ class MatchEventPlayer(models.Model):
 
 class StatistiquesPlayer(models.Model):
     idStatistiquesPlayer = models.AutoField(primary_key=True)
-    note = models.IntegerField()
-    temps_de_jeu = models.IntegerField()
-    tirs_cadres = models.IntegerField()
-    tirs_tentes = models.IntegerField()
-    buts_marques = models.IntegerField()
-    passes_decisives = models.IntegerField()
-    fautes_commises = models.IntegerField()
-    carton_jaune = models.IntegerField
-    carton_rouge = models.IntegerField()
+    # STATS FOR ALL
+    note = models.IntegerField(default=0)
+    nbMatchPlayer = models.IntegerField(default=0)
+    nbMatchTeam = models.IntegerField(default=0)
+    nbGoalPlayer = models.IntegerField(default=0)
+    nbGoalTeam = models.IntegerField(default=0)
+    nbLastPassPlayer = models.IntegerField(default=0)
+    nbLastPassTeam = models.IntegerField(default=0)
+    nbYellowCardPlayer = models.IntegerField(default=0)
+    nbYellowCardTeam = models.IntegerField(default=0)
+    nbRedCardPlayer = models.IntegerField(default=0)
+    nbRedCardTeam = models.IntegerField(default=0)
+    # STATS FOR GOAL
+    nbCleanSheet = models.IntegerField(default=0)
+    nbGoalAgainst = models.IntegerField(default=0)
+    nbShotIn = models.IntegerField(default=0)
+    nbShotOut = models.IntegerField(default=0)
+    nbCapt = models.IntegerField(default=0)
+    nbPush = models.IntegerField(default=0)
+    nbAir = models.IntegerField(default=0)
+    nbFoot = models.IntegerField(default=0)
+    nbAirFail = models.IntegerField(default=0)
+    nbFootFail = models.IntegerField(default=0)
+
+
+    # temps_de_jeu = models.IntegerField()
+    # tirs_cadres = models.IntegerField()
+    # tirs_tentes = models.IntegerField()
+    # buts_marques = models.IntegerField()
+    # passes_decisives = models.IntegerField()
+    # fautes_commises = models.IntegerField()
+    # carton_jaune = models.IntegerField()
+    # carton_rouge = models.IntegerField()
 
 
     class Meta:
-        db_table = 'stats_player'
+        db_table = 'stats_player_v2'
 
 
 class Composition(models.Model):
