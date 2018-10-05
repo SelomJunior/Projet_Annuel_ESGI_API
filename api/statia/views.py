@@ -500,6 +500,14 @@ class getStatsInfoByPlayer(APIView):
                 if eventsGoal:
                     playerInfo.nbGoalPlayer += len(eventsGoal)
                 
+                eventsPassPlayer = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(player=player.idplayer).filter(event="Passe décisive")
+                if eventsGoal:
+                    playerInfo.nbLastPassPlayer += len(eventsPassPlayer)
+
+                eventsPassTeam = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(event="Passe décisive")
+                if eventsGoal:
+                    playerInfo.nbLastPassTeam += len(eventsPassTeam)
+
                 eventsYCardPlayer = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(player=player.idplayer).filter(event="Carton jaune")
                 if eventsYCardPlayer:
                     playerInfo.nbYellowCardPlayer += len(eventsYCardPlayer)
@@ -517,7 +525,6 @@ class getStatsInfoByPlayer(APIView):
                     playerInfo.nbRedCardTeam += len(eventsRCardTeam)
 
                 if player.position == "Gardien":
-                    print("HERE 1")
                     events = MatchEventPlayer.objects.all().filter(statsMatch=match.idStatistiquesMatch).filter(player=player.idplayer)
                     for event in events:
                         if event.event == "Ballon capté":
