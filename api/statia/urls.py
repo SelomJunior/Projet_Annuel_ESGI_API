@@ -22,6 +22,7 @@ router.register(r'statsinfoplayer', StatistiquesInfoPlayerViewSet)
 router.register(r'statsinfo', StatistiqueInfoViewSet)
 router.register(r'categoriestats', CategorieStatsViewSet)
 router.register(r'compositionhistory', CompositionHistoryViewSet)
+router.register(r'analysts', AnalystViewSet)
 
 urlpatterns = [
     url(r'playersbyteam/([0-9]+)$', Playerbyteam.as_view()),
@@ -33,7 +34,7 @@ urlpatterns = [
     url(r'getcompobyteam/([0-9]+)$', getCompoByTeam.as_view()),
     url(r'getcomposdetails/([0-9]+)$', getCompoDetailByCompo.as_view()),
     url(r'getcompodefault', getComposByDefaut.as_view()),
-    url(r'statsinfobyplayer/([0-9]+)$', getStatsInfoByPlayer.as_view())
+    url(r'statsinfobyplayer/([0-9]+)$', getStatsInfoByPlayer.as_view()),
     url(r'getcompodefault', getComposByDefaut.as_view()),
     url(r'statsmatchbymatch/([0-9]+)$', getStatsMatchByMatch.as_view()),
     url(r'statsmatchinfobymatch/([0-9]+)/([0-9]+)$', getStatsMatchInfoByMatch.as_view()),
@@ -42,6 +43,8 @@ urlpatterns = [
     url(r'getcomposdetailshistory/([0-9]+)', getCompoDetailForCompo.as_view()),
     url(r'populate/',populate.as_view()),
     url(r'populateTeam', populateTeam.as_view()),
+    url(r'matchtoanalyze', matchToAnalyze.as_view()),
+    url(r'getteambycoach/([0-9]+)/',getTeamByCoach.as_view())
 ]
 
 urlpatterns += router.urls

@@ -132,7 +132,7 @@ class PlayerUpdateSerializer(serializers.ModelSerializer):
 
 
 class CoachSerializer(serializers.ModelSerializer):
-    team = TeamSerializer(many=False)
+    #team = TeamSerializer(many=False)
     user = UserSerializer(many=False)
 
     class Meta:

@@ -353,7 +353,7 @@ class matchToAnalyze(APIView):
 class matchByTeam(APIView):
     def get(self,request, pk, format=None):
         match = Match.objects.all().filter(Q(home=pk) | Q(away=pk)).order_by('date')
-        matchV2 = Match.objects.all().filter(date__gte=datetime.date.today()).order_by('date')
+        matchV2 = Match.objects.all().filter(Q(home=pk) | Q(away=pk)).filter(date__gte=datetime.date.today()).order_by('date')
         serializer = MatchSerializer(matchV2, many=True)
         return Response(serializer.data)
 
@@ -608,6 +608,14 @@ class getCompoDetailForCompo(APIView):
         serializers = CompositionDetailHistorySerializer(composDetail,many=True)
         return JsonResponse(status=200, data=serializers.data, safe=False)
 
+
+class getTeamByCoach(APIView):
+    def get(self, request, idCoach, Format=None):
+        coach = Coach.objects.all().filter(idcoach=idCoach).first()
+        team = Team.objects.all().filter(coach=coach)
+
+        serializers = TeamSerializer(team,many=True)
+        return JsonResponse(status=200, data=serializers.data, safe=False)
 
 
 class postCompoForMatch(APIView):

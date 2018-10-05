@@ -32,7 +32,7 @@ class State(models.Model):
 class Coach(models.Model):
     idcoach = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, models.DO_NOTHING, db_column='user', blank=True, null=True,related_name='+')
-    team = models.ForeignKey('Team', models.DO_NOTHING, db_column='team', blank=True, null=True,related_name='+')
+#    team = models.ForeignKey('Team', models.DO_NOTHING, db_column='team', blank=True, null=True,related_name='+')
 
     class Meta:
         db_table = 'coach'
@@ -128,6 +128,7 @@ class Team(models.Model):
     name = models.CharField(max_length=45, blank=True, null=True)
     league = models.ForeignKey('League', models.DO_NOTHING, db_column='ligue', blank=True, null=True, related_name='+')
     club = models.ForeignKey(Club,models.DO_NOTHING,db_column='club',blank=True,null=True,related_name='+')
+    coach = models.ForeignKey(Coach, models.DO_NOTHING, db_column='coach', blank=True, null=True, related_name='+')
 
     def __str__(self):
         return '%s : %s' % (self.name, self.club)
