@@ -32,7 +32,7 @@ class State(models.Model):
 class Coach(models.Model):
     idcoach = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, models.DO_NOTHING, db_column='user', blank=True, null=True,related_name='+')
-    team = models.ForeignKey('Team', models.DO_NOTHING, db_column='team', blank=True, null=True,related_name='+')
+#    team = models.ForeignKey('Team', models.DO_NOTHING, db_column='team', blank=True, null=True,related_name='+')
 
     class Meta:
         db_table = 'coach'
@@ -45,16 +45,15 @@ class Match(models.Model):
     day = models.CharField(max_length=45, blank=True, null=True)
     home = models.ForeignKey('Team', models.DO_NOTHING, db_column='home', blank=True, null=True, related_name='+')
     away = models.ForeignKey('Team', models.DO_NOTHING, db_column='away', blank=True, null=True, related_name='+')
-    home_goal = models.IntegerField(null=True, default=0)
-    away_goal = models.IntegerField(null=True, default=0)
+    home_goal = models.IntegerField(null=True, default=None)
+    away_goal = models.IntegerField(null=True, default=None)
     state = models.IntegerField(null=True, default=0)
-
 
     class Meta:
         db_table = 'match'
 
     def __str__(self):
-        return '%s: %s - %s' %(self.idmatch, self.home, self.away)
+        return '%s: %s - %s' % (self.idmatch, self.home, self.away)
 
 class League(models.Model):
     id = models.AutoField(primary_key=True)
@@ -129,6 +128,7 @@ class Team(models.Model):
     name = models.CharField(max_length=45, blank=True, null=True)
     league = models.ForeignKey('League', models.DO_NOTHING, db_column='ligue', blank=True, null=True, related_name='+')
     club = models.ForeignKey(Club,models.DO_NOTHING,db_column='club',blank=True,null=True,related_name='+')
+    coach = models.ForeignKey(Coach, models.DO_NOTHING, db_column='coach', blank=True, null=True, related_name='+')
 
     def __str__(self):
         return '%s : %s' % (self.name, self.club)
@@ -274,8 +274,31 @@ class CompositionDetail(models.Model):
     composition = models.ForeignKey(Composition, on_delete=models.CASCADE, db_column='composition', blank=True, null=True, related_name='+')
     poste = models.ForeignKey(Poste, on_delete=models.DO_NOTHING, db_column='poste', blank=True, null=True, related_name='+')
     is_sub = models.IntegerField(blank=True, default=0)
+
     class Meta:
         db_table = 'composition_details'
+
+
+class CompositionHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    team = models.ForeignKey(Team, models.DO_NOTHING, db_column='team', blank=True, null=True, related_name='+')
+    name = models.CharField(max_length=20, null=True)
+    match = models.ForeignKey(Match, models.DO_NOTHING, db_column='match', blank=True, null=True, related_name='+')
+
+    class Meta:
+        db_table = 'composition_history'
+
+
+class CompositionDetailHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, db_column='player', blank=True, null=True, related_name='+')
+    composition = models.ForeignKey(CompositionHistory, on_delete=models.CASCADE, db_column='composition', blank=True, null=True, related_name='+')
+    poste = models.ForeignKey(Poste, on_delete=models.DO_NOTHING, db_column='poste', blank=True, null=True, related_name='+')
+    is_sub = models.IntegerField(blank=True, default=0)
+
+    class Meta:
+        db_table = 'composition_details_history'
+
 
 
 class CategorieStats(models.Model):
