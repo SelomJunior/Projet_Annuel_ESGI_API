@@ -53,7 +53,7 @@ class Match(models.Model):
         db_table = 'match'
 
     def __str__(self):
-        return '%s - %s' %(self.home, self.away)
+        return '%s: %s - %s' % (self.idmatch, self.home, self.away)
 
 class League(models.Model):
     id = models.AutoField(primary_key=True)
@@ -267,7 +267,7 @@ class CompositionHistory(models.Model):
 class CompositionDetailHistory(models.Model):
     id = models.AutoField(primary_key=True)
     player = models.ForeignKey(Player, on_delete=models.CASCADE, db_column='player', blank=True, null=True, related_name='+')
-    composition = models.ForeignKey(Composition, on_delete=models.CASCADE, db_column='composition', blank=True, null=True, related_name='+')
+    composition = models.ForeignKey(CompositionHistory, on_delete=models.CASCADE, db_column='composition', blank=True, null=True, related_name='+')
     poste = models.ForeignKey(Poste, on_delete=models.DO_NOTHING, db_column='poste', blank=True, null=True, related_name='+')
     is_sub = models.IntegerField(blank=True, default=0)
 

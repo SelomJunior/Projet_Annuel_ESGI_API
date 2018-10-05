@@ -14,6 +14,8 @@ from django.db.models import Q
 import pdb
 import json
 import datetime
+import requests
+
 
 class ClubViewSet(viewsets.ModelViewSet):
     queryset = Club.objects.all()
@@ -216,7 +218,33 @@ class CompositionHistoryViewSet(viewsets.ModelViewSet):
             return CompositionHistorySerializer
 
     def create(self, request, *args, **kwargs):
-        composH = CompositionHistory(match=request.data['match'],)
+        composH = CompositionHistory.objects.all().filter(match=request.data['match']).filter(team=request.data['team']).filter(name=request.data['name']).first()
+        if composH is None:
+            team = Team.objects.all().filter(idteam=request.data['team']).first()
+            match = Match.objects.all().filter(idmatch=request.data['match']).first()
+            compo = Composition.objects.all().filter(name=request.data['name']).filter(team=team).first()
+            compositionDetail = list(CompositionDetail.objects.all().filter(composition=compo).values())
+            composH = CompositionHistory(name=request.data['name'], match=match, team=team)
+            composH.save()
+            for compod in compositionDetail:
+                player = Player.objects.all().filter(idplayer=compod['player_id']).first()
+                poste = Poste.objects.all().filter(id=compod['poste_id']).first()
+                compoHD = CompositionDetailHistory(player=player, poste=poste,composition=composH)
+                compoHD.save()
+        else:
+            composH.delete()
+            team = Team.objects.all().filter(idteam=request.data['team']).first()
+            match = Match.objects.all().filter(idmatch=request.data['match']).first()
+            compo = Composition.objects.all().filter(name=request.data['name']).filter(team=team).first()
+            compositionDetail = list(CompositionDetail.objects.all().filter(composition=compo).values())
+            composH = CompositionHistory(name=request.data['name'], match=match, team=team)
+            composH.save()
+            for compod in compositionDetail:
+                player = Player.objects.all().filter(idplayer=compod['player_id']).first()
+                poste = Poste.objects.all().filter(id=compod['poste_id']).first()
+                compoHD = CompositionDetailHistory(player=player, poste=poste, composition=composH)
+                compoHD.save()
+
         return JsonResponse(status=200, data=False, safe=False)
 
 
@@ -329,7 +357,8 @@ class matchByTeam(APIView):
 class matchByTeamAndCompetition(APIView):
     def get(self,request, idteam, idcompet, format=None):
         match = Match.objects.all().filter(Q(home=idteam) | Q(away=idteam)).filter(tournament=idcompet).order_by('date')
-        serializers = MatchSerializer(match, many=True)
+        matchV2 = Match.objects.all().filter(Q(home=idteam) | Q(away=idteam)).filter(tournament=idcompet).filter(date__lte=datetime.date.today()).order_by('date')
+        serializers = MatchSerializer(matchV2, many=True)
         return Response(serializers.data)
 
 
@@ -488,10 +517,79 @@ class getStatsMatchInfoByMatch(APIView):
 
 class getCompoForMatch(APIView):
     def get(self, request, idMatch, idTeam, Format=None):
-        return JsonResponse(status=200, data=True, safe=False)
+        compoH = CompositionHistory.objects.all().filter(team=idTeam).filter(match=idMatch).first()
+        if compoH :
+            serializers = CompositionHistorySerializer(compoH, many=False)
+            return JsonResponse(status=200, data=serializers.data, safe=False)
+        else:
+            return JsonResponse(status=200, data={}, safe=False)
+
+
+class getCompoDetailForCompo(APIView):
+    def get(self, request, idCompo, Format=None):
+        composDetail = CompositionDetailHistory.objects.all().filter(composition__id=idCompo).order_by('poste')
+
+        serializers = CompositionDetailHistorySerializer(composDetail,many=True)
+        return JsonResponse(status=200, data=serializers.data, safe=False)
 
 
 
 class postCompoForMatch(APIView):
     def post(self, request, fortmat=None):
+        return JsonResponse(status=200, data=True, safe=False)
+
+
+class populate(APIView):
+    def get(self, request, Format=None):
+        url = 'http://api.football-data.org/v2/teams/516'
+        headers = {'X-Auth-Token': '563b1bc518a14dedbc69c78f2e136f9b'}
+
+        r = requests.get(url, headers=headers)
+        jsonR = r.json()
+        listSquad = jsonR['squad']
+
+        team = Team.objects.all().filter(idteam=1).first()
+        for player in listSquad:
+            print(len(player['name'].split(" ")))
+            if len(player['name'].split(" ")) == 1 :
+                user = User(last_name=player['name'].split(" ")[0],
+                            first_name=player['name'].split(" ")[0],
+                            email=player['name'].split(" ")[0], username=player['name'].split(" ")[0])
+
+
+                player = Player(position=player['position'], team=team)
+
+                user.save()
+                player.user = user
+                player.save()
+            else:
+                user = User(last_name=player['name'].split(" ")[1],
+                            first_name=player['name'].split(" ")[0],
+                            email=player['name'], username=player['name'])
+
+                player = Player(position=player['position'], team=team)
+
+                user.save()
+                player.user = user
+                player.save()
+
+        return JsonResponse(status=200, data=True, safe=False)
+
+class populateTeam(APIView):
+    def get(self, request, Format=None):
+        url = 'http://api.football-data.org/v2/competitions/2015/teams'
+        headers = {'X-Auth-Token': '563b1bc518a14dedbc69c78f2e136f9b'}
+
+        #r = requests.get(url, headers=headers)
+        #jsonR = r.json()
+        #listteam = jsonR['teams']
+        #compositionDetail = list(CompositionDetail.objects.all().filter(composition=compo).values())
+        clubs = Club.objects.all().filter(city=None)
+        for clb in clubs.iterator():
+            print(clb)
+            team = Team(name="Senior A", club=clb, league_id=1)
+            team.save()
+
+
+
         return JsonResponse(status=200, data=True, safe=False)
