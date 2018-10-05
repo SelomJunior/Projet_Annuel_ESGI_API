@@ -74,9 +74,15 @@ class PlayerCreateSerializer(serializers.ModelSerializer):
 
             return player
 
-        user = User(last_name=validated_data['user']['last_name'],
+        print(validated_data['user']['first_name'].lower() + validated_data['user']['last_name'].lower())
+
+        #user = User(last_name=validated_data['user']['last_name'],
+         #           first_name=validated_data['user']['first_name'],
+          #          email=validated_data['user']['email'], username=validated_data['user']['email'])
+
+        user = User.objects.create_user(last_name=validated_data['user']['last_name'],
                     first_name=validated_data['user']['first_name'],
-                    email=validated_data['user']['email'], username=validated_data['user']['email'])
+                    email=validated_data['user']['email'], username=validated_data['user']['email'],password=validated_data['user']['first_name'].lower() + validated_data['user']['last_name'].lower())
 
         player = Player(position=validated_data['position'],
                         foot=validated_data['foot'],
@@ -209,6 +215,16 @@ class CompositinoDetailSerializerCreate(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CompositionDetailHistorySerializer(serializers.ModelSerializer):
+    player = PlayerSerializer(many=False)
+    poste = PosteSerializer(many=False)
+
+    class Meta:
+        model = CompositionDetailHistory
+        fields = ('id', 'player', 'poste')
+
+
+
 class AnalystSerializer(serializers.ModelSerializer):
     user = UserSerializer(many=False, read_only=True)
     class Meta:
@@ -231,12 +247,12 @@ class StatistiquesMatchSerializer(serializers.ModelSerializer):
         model = StatistiquesMatch
         fields = '__all__'
 
+
 class StatistiquesMatchCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StatistiquesMatch
         fields = '__all__'
-
 
 
 class MatchEventPlayerSerializer(serializers.ModelSerializer):
@@ -276,7 +292,7 @@ class StatistiqueInfoSerializer(serializers.ModelSerializer):
 
 
 class StatsMatchInfoSerializerGet(serializers.ModelSerializer):
-    stats_match = StatistiquesMatchSerializer(many=False)
+    statistiques_match = StatistiquesMatchSerializer(many=False)
     stats_info = StatistiqueInfoSerializer(many=False)
 
     class Meta:
@@ -288,3 +304,18 @@ class StatistiquesPlayerSerializer(serializers.ModelSerializer):
         model = StatistiquesPlayer
         fields = '__all__'
         
+
+class CompositionHistorySerializer(serializers.ModelSerializer):
+    team = TeamSerializer(many=False)
+    match = MatchSerializer(many=False)
+
+    class Meta:
+        model = CompositionHistory
+        fields = '__all__'
+
+
+class CompositionHistoryCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CompositionHistory
+        fields = '__all__'
